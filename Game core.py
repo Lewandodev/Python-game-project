@@ -15,3 +15,8 @@ velocity=5
 run=True
 while run is True:
     pygame.time.delay(100)
+
+    for event in pygame.event.get(): #event is anything that happens "from the user" like using movement keys or clicking
+        if event.type==pygame.QUIT:
+            run=False
+
