@@ -28,28 +28,29 @@ class player(object):
         self.left=False #which direction character is moving
         self.rigt=False
         self.walking_count=0
-    def draw(window):
+    def draw(self,window):
         # creating character
-        if walking_count + 1 >= 27:  # 9 sprites which I will display for 3 frames therefore 9*3. That's how many times we will go through the loop before it changes the image
-            walking_count = 0  # In 27 FPS changing image every 3 loops makes the character look like its moving
-        if left:
-            window.blit(walkLeft[walking_count // 3], (x, y))
-            walking_count += 1
-        elif right:
-            window.blit(walkRight[walking_count // 3], (x, y))
-            walking_count += 1
+        if self.walking_count + 1 >= 27:  # 9 sprites which I will display for 3 frames therefore 9*3. That's how many times we will go through the loop before it changes the image
+            self.walking_count = 0  # In 27 FPS changing image every 3 loops makes the character look like its moving
+        if self.left:
+            window.blit(walkLeft[self.walking_count // 3], (self.x, self.y))
+            self.walking_count += 1
+        elif self.right:
+            window.blit(walkRight[self.walking_count // 3], (self.x, self.y))
+            self.walking_count += 1
         else:
-            window.blit(char, (x, y))
+            window.blit(char, (self.x, self.y))
 
 
 
 def redraw_game_window():
-    global walking_count
-    window.blit(background,(0,0))
 
+    window.blit(background,(0,0))
+    character.draw(window)
     pygame.display.update()
 
-character=player(300,410,64,64)
+character=player(300,340,64,64)
+
 run=True
 while run is True:
     clock.tick(54) #changed delay according to our FPS
@@ -68,8 +69,8 @@ while run is True:
 
     elif move_keys[pygame.K_RIGHT] and character.x<screen_border-character.width-character.velocity: #substracting by width moves our border making the character crossing attempts impossible
         character.x+=character.velocity
-        left = False
-        right = True
+        character.left = False
+        character.right = True
     else:
         character.right=False
         character.left=False
