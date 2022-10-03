@@ -27,7 +27,7 @@ class player(object):
         self.is_jump=False
         self.jump_count=10
         self.left=False #which direction character is moving
-        self.rigt=False
+        self.right=False
         self.walking_count=0
         self.standing=True
 
@@ -45,8 +45,8 @@ class player(object):
                 self.walking_count += 1
         else:
             #window.blit(char, (self.x, self.y))
-            #chcecking last frame/whether player is standing turned left or right
-            if self.rigt:
+            #checking last frame/whether player is standing turned left or right, player character doesn't move
+            if self.right:
                 window.blit(walkRight[0],(self.x,self.y))
             else:
                 window.blit(walkLeft[0],(self.x,self.y))
@@ -70,9 +70,13 @@ def redraw_game_window():
 
     window.blit(background,(0,0))
     character.draw(window)
+    for bullet in bullets:
+        bullet.draw(window)
     pygame.display.update()
 
 character=player(300,340,64,64)
+
+bullets=[]
 
 run=True
 while run is True:
@@ -81,10 +85,27 @@ while run is True:
     for event in pygame.event.get(): #event is anything that happens "from the user" like using movement keys or clicking
         if event.type==pygame.QUIT:  #thanks to this function we wont get error after exiting game
             run=False
+    #projectiles:
+    for bullet in bullets:
+        if bullet.x<500 and bullet.x>0:#checking if proejctile is on the screen
+            bullet.x+=bullet.velocity#projectile will move in any direction (left/right) we want
+        else:#projectile is not on the screen
+            bullets.pop(bullets.index(bullet))
 
     #movement
     #coordinates of object are stored in top left of the character
     move_keys=pygame.key.get_pressed()
+
+    #projectiles
+    if move_keys[pygame.K_SPACE]:
+        if character.left:
+            facing=-1 #moving negative direction in order to make the projectiole move left
+        else:
+            facing=1 #otherwise projectile will move right
+        if len(bullets)<5:
+            bullets.append(projectile(round(character.x + character.width // 2), round(character.y + character.height // 2), 6, (13, 31, 255), facing))
+            #projectile will come from the "center" of player character
+
     if move_keys[pygame.K_LEFT] and character.x>character.velocity:
         character.x-=character.velocity
         character.left=True
@@ -95,6 +116,7 @@ while run is True:
         character.x+=character.velocity
         character.left = False
         character.right = True
+        character.standing=False
     else:
         #we need to get rid of reseting rigt/left values because we wont know which way our character is looking
         #character.right=False
@@ -107,7 +129,7 @@ while run is True:
             y-=velocity                         #going up and down will be useless in a paltformer game
         elif move_keys[pygame.K_DOWN] and y < screen_border-height-velocity:
             y+=velocity'''
-        if move_keys[pygame.K_SPACE]:
+        if move_keys[pygame.K_UP]:
             character.is_jump = True
             character.left = False
             character.right = False
