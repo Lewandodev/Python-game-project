@@ -27,7 +27,7 @@ class player(object):
         self.is_jump=False
         self.jump_count=10
         self.left=False #which direction character is moving
-        self.right=False
+        self.right=True #which direction will our character face upon spawning if both are set to false we will see bug
         self.walking_count=0
         self.standing=True
 
@@ -103,7 +103,7 @@ while run is True:
         else:
             facing=1 #otherwise projectile will move right
         if len(bullets)<5:
-            bullets.append(projectile(round(character.x + character.width // 2), round(character.y + character.height // 2), 6, (13, 31, 255), facing))
+            bullets.append(projectile(round(character.x + character.width // 2), round(character.y + character.height // 2), 6, (255, 0, 0), facing))
             #projectile will come from the "center" of player character
 
     if move_keys[pygame.K_LEFT] and character.x>character.velocity:
@@ -131,8 +131,8 @@ while run is True:
             y+=velocity'''
         if move_keys[pygame.K_UP]:
             character.is_jump = True
-            character.left = False
-            character.right = False
+            #we don't set character booleans to true or false to avoid bugs
+
             character.walking_count=0
     else:
         if character.jump_count>=-10: #jumping is moving character by ceratin amount of pixels
