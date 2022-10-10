@@ -64,18 +64,72 @@ class projectile(object):
     def draw(self,window):
         pygame.draw.circle(window,self.color,(self.x,self.y),self.radius)
 
+class enemy(object):
+
+    walkRight = [pygame.image.load('R1E.png'), pygame.image.load('R2E.png'), pygame.image.load('R3E.png'),
+                 pygame.image.load('R4E.png'), pygame.image.load('R5E.png'), pygame.image.load('R6E.png'),
+                 pygame.image.load('R7E.png'), pygame.image.load('R8E.png'), pygame.image.load('R9E.png'),
+                 pygame.image.load('R10E.png'), pygame.image.load('R11E.png')]
+    walkLeft = [pygame.image.load('L1E.png'), pygame.image.load('L2E.png'), pygame.image.load('L3E.png'),
+                pygame.image.load('L4E.png'), pygame.image.load('L5E.png'), pygame.image.load('L6E.png'),
+                pygame.image.load('L7E.png'), pygame.image.load('L8E.png'), pygame.image.load('L9E.png'),
+                pygame.image.load('L10E.png'), pygame.image.load('L11E.png')]
+
+    def __init__(self, x, y, width, height, end):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.path = [x, end]  #This will define where our enemy starts and finishes their walking cycle/path.
+        self.walkCount = 0
+        self.vel = 3
+
+    #we will first move then draw enemy
+
+    #enemy will move only on x axis from one point to another
+    #essentially we will increase/substract x value
+    def draw(self,window):
+        self.move()
+        #standard loop reseting to change images
+        #if self.walkCount + 1 >= 33: #33 since we have 11 sprites
+        #    self.walkCount=0
+
+        # we can use the modulo in order to avoid resetting walkCount value every round of frames
+        if self.vel>0: #we move right
+            window.blit(self.walkRight[(self.walkCount//3)%11],(self.x,self.y))
+
+        else: #we move left
+            window.blit(self.walkLeft[(self.walkCount // 3)%11], (self.x, self.y))
+        self.walkCount += 1
+
+
+    def move(self):
+        if self.vel>0:
+            if self.x+self.vel<self.path[1]: #if our x coordinate is less than the coordinate we cant go pass we  will allow enemy to move
+                self.x+=self.vel
+            else: #changing direction enemy moves
+                self.vel=self.vel*-1 #changing to opposite direction
+                self.walkCount=0
+        else:
+            if self.x-self.vel>self.path[0]:
+                self.x+=self.vel
+            else:
+                self.vel = self.vel * -1  # opposite direction
+                self.walkCount = 0
+
 
 
 def redraw_game_window():
 
     window.blit(background,(0,0))
     character.draw(window)
+    zombie.draw(window)
     for bullet in bullets:
         bullet.draw(window)
     pygame.display.update()
 
 character=player(300,340,64,64)
-
+zombie=enemy(100,340,64,64,500) #instance of our enemy
 bullets=[]
 
 run=True
