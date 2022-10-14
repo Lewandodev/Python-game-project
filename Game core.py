@@ -30,6 +30,9 @@ class player(object):
         self.right=True #which direction will our character face upon spawning if both are set to false we will see bug
         self.walking_count=0
         self.standing=True
+        self.hitbox=(self.x + 17, self.y, 28, 60) #defining rectangular hitbox 28 is width 60 is height x and and y are the coordinates which move whole rectangle up/down/left/right
+
+
 
     def draw(self,window):
         # creating character
@@ -50,6 +53,11 @@ class player(object):
                 window.blit(walkRight[0],(self.x,self.y))
             else:
                 window.blit(walkLeft[0],(self.x,self.y))
+
+        # we need to add hitbox to draw method since player can move
+        self.hitbox = (self.x + 17, self.y, 28, 60)
+        #every time player is moving the hitbox moves with him and changes
+        pygame.draw.rect(window,(255,0,0),self.hitbox,2)
 
 #projectile which our character will shoot
 class projectile(object):
@@ -83,6 +91,7 @@ class enemy(object):
         self.path = [x, end]  #This will define where our enemy starts and finishes their walking cycle/path.
         self.walkCount = 0
         self.vel = 3
+        self.hitbox = (self.x + 17, self.y+2, 31, 57)
 
     #we will first move then draw enemy
 
@@ -102,6 +111,10 @@ class enemy(object):
             window.blit(self.walkLeft[(self.walkCount // 3)%11], (self.x, self.y))
         self.walkCount += 1
 
+        self.hitbox = (self.x + 17, self.y+2, 31, 57)
+        pygame.draw.rect(window, (255, 0, 0), self.hitbox, 2)
+
+
 
     def move(self):
         if self.vel>0:
@@ -116,6 +129,11 @@ class enemy(object):
             else:
                 self.vel = self.vel * -1  # opposite direction
                 self.walkCount = 0
+
+    #this methods exectue whenever goblin gets hit
+    def hit(self):
+        print('target hit')
+        pass
 
 
 
@@ -141,6 +159,15 @@ while run is True:
             run=False
     #projectiles:
     for bullet in bullets:
+        #if the bullet is inside the hitbox we match it as hit
+        #specifically we will check the y coordinates of projectile and see if its between the y coordinates of our hitbox
+        if bullet.y-bullet.radius<zombie.hitbox[1]+zombie.hitbox[3] and bullet.y+bullet.radius>zombie.hitbox[1]: #first part check if we are above the bottom of hitbox and second if we are below the top
+            #then we need to check right side and left side
+            if bullet.x + bullet.radius > zombie.hitbox[0] and bullet.x-bullet.radius<zombie.hitbox[0]+zombie.hitbox[2]: #hitbox[0] is x coordinate
+                zombie.hit()
+                bullets.pop(bullets.index(bullet)) #remove projectile once it hit
+
+
         if bullet.x<500 and bullet.x>0:#checking if proejctile is on the screen
             bullet.x+=bullet.velocity#projectile will move in any direction (left/right) we want
         else:#projectile is not on the screen
