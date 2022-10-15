@@ -11,6 +11,7 @@ walkRight = [pygame.image.load('R1.png'), pygame.image.load('R2.png'), pygame.im
 walkLeft = [pygame.image.load('L1.png'), pygame.image.load('L2.png'), pygame.image.load('L3.png'), pygame.image.load('L4.png'), pygame.image.load('L5.png'), pygame.image.load('L6.png'), pygame.image.load('L7.png'), pygame.image.load('L8.png'), pygame.image.load('L9.png')]
 background = pygame.image.load('bgr.jpg')
 char = pygame.image.load('Standing.png')
+score_of_player=0
 
 clock=pygame.time.Clock()
 
@@ -140,6 +141,8 @@ class enemy(object):
 def redraw_game_window():
 
     window.blit(background,(0,0))
+    text=scoreboard_font.render('Score',str(score_of_player),1,(0,0,0)) #rendering our scoreboard text onto the screen
+    window.blit(text,(390,10))
     character.draw(window)
     zombie.draw(window)
     for bullet in bullets:
@@ -148,11 +151,23 @@ def redraw_game_window():
 
 character=player(300,340,64,64)
 zombie=enemy(100,340,64,64,500) #instance of our enemy
+cooldown=0 #shooting cooldown
 bullets=[]
+
+#creating our scoreboard
+scoreboard_font=pygame.font.SysFont('TTF',40,True,True)
+
 
 run=True
 while run is True:
     clock.tick(54) #changed delay according to our FPS
+
+    #making a cooldown of the projectiles player is shooting
+    if cooldown>0:
+        cooldown+=1
+    if cooldown>3:
+        cooldown=0
+    #we only allow palyer to shoot if the shooting cooldown is max it prevents player from spamming and making the the projectiles looks like a cluster
 
     for event in pygame.event.get(): #event is anything that happens "from the user" like using movement keys or clicking
         if event.type==pygame.QUIT:  #thanks to this function we wont get error after exiting game
@@ -165,6 +180,7 @@ while run is True:
             #then we need to check right side and left side
             if bullet.x + bullet.radius > zombie.hitbox[0] and bullet.x-bullet.radius<zombie.hitbox[0]+zombie.hitbox[2]: #hitbox[0] is x coordinate
                 zombie.hit()
+                score_of_player+=1
                 bullets.pop(bullets.index(bullet)) #remove projectile once it hit
 
 
@@ -178,7 +194,7 @@ while run is True:
     move_keys=pygame.key.get_pressed()
 
     #projectiles
-    if move_keys[pygame.K_SPACE]:
+    if move_keys[pygame.K_SPACE] and cooldown==0:
         if character.left:
             facing=-1 #moving negative direction in order to make the projectiole move left
         else:
@@ -186,6 +202,7 @@ while run is True:
         if len(bullets)<5:
             bullets.append(projectile(round(character.x + character.width // 2), round(character.y + character.height // 2), 6, (255, 0, 0), facing))
             #projectile will come from the "center" of player character
+        cooldown=1
 
     if move_keys[pygame.K_LEFT] and character.x>character.velocity:
         character.x-=character.velocity
