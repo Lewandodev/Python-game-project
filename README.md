@@ -13,4 +13,9 @@ I'm not exactly sure of how many files will my game consists of, however I plan 
 Character sprites haven't been made by instead I downloaded free sprites from websites such as pngkey and pngfind.
 Background image was created by me it's composed of free graphical assets I combined together.
 
+Music was obtained under Attribution 3.0 license https://creativecommons.org/licenses/by/3.0/
+And is part of "Chiptune Madness" album ("Ninja's Spirit" track) by  Rob0ne: https://rob0ne.bandcamp.com/album/chiptune-madness    
+youtube link: https://www.youtube.com/watch?v=ApdlmRlLXAg
+Hit sound effect was provided by Gfx Sounds: https://gfxsounds.com (website), https://gfxsounds.com/free-sound-effects
+Gunshoot effect is copyright free, I might change it in future since it's a bit too loud
 More updates soon

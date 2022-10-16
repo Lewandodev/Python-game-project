@@ -15,6 +15,12 @@ score_of_player=0
 
 clock=pygame.time.Clock()
 
+#uploading music and sound effect
+bullet_soundef=pygame.mixer.Sound('bullet_sound.wav')
+hit_soundef=pygame.mixer.Sound('hiteffect.wav')
+music_backgorund=pygame.mixer.music.load('music.mp3')
+pygame.mixer.music.play(-1) #playing music in background
+
 screen_border=600
 
 #getting rid of globals by using classes
@@ -58,7 +64,7 @@ class player(object):
         # we need to add hitbox to draw method since player can move
         self.hitbox = (self.x + 17, self.y, 28, 60)
         #every time player is moving the hitbox moves with him and changes
-        pygame.draw.rect(window,(255,0,0),self.hitbox,2)
+        #pygame.draw.rect(window,(255,0,0),self.hitbox,2)
 
 #projectile which our character will shoot
 class projectile(object):
@@ -93,6 +99,8 @@ class enemy(object):
         self.walkCount = 0
         self.vel = 3
         self.hitbox = (self.x + 17, self.y+2, 31, 57)
+        self.health=11 #to keep track of our enemy health
+        self.visible=True #once our enemy has no more health left we will make him disappear
 
     #we will first move then draw enemy
 
@@ -100,20 +108,27 @@ class enemy(object):
     #essentially we will increase/substract x value
     def draw(self,window):
         self.move()
-        #standard loop reseting to change images
-        #if self.walkCount + 1 >= 33: #33 since we have 11 sprites
-        #    self.walkCount=0
+        if self.visible is True:
 
-        # we can use the modulo in order to avoid resetting walkCount value every round of frames
-        if self.vel>0: #we move right
-            window.blit(self.walkRight[(self.walkCount//3)%11],(self.x,self.y))
+            #standard loop reseting to change images
+            #if self.walkCount + 1 >= 33: #33 since we have 11 sprites
+            #    self.walkCount=0
 
-        else: #we move left
-            window.blit(self.walkLeft[(self.walkCount // 3)%11], (self.x, self.y))
-        self.walkCount += 1
+            # we can use the modulo in order to avoid resetting walkCount value every round of frames
+            if self.vel>0: #we move right
+                window.blit(self.walkRight[(self.walkCount//3)%11],(self.x,self.y))
 
-        self.hitbox = (self.x + 17, self.y+2, 31, 57)
-        pygame.draw.rect(window, (255, 0, 0), self.hitbox, 2)
+            else: #we move left
+                window.blit(self.walkLeft[(self.walkCount // 3)%11], (self.x, self.y))
+            self.walkCount += 1
+
+            pygame.draw.rect(window,(255,0,0),(self.hitbox[0],self.hitbox[1]-20,50,10) ) #drawing our health bar -> damaged red colour hitbox[0,1] are coordinates
+            pygame.draw.rect(window, (0, 150, 0), (self.hitbox[0], self.hitbox[1] - 20, 50-((50//11)*(11-self.health)), 10)) #full healthbar green colour which we will move via substraction
+            #50 is width we substract our width by width // divided by the previously defined health multiplied by overall health we start with substracted by current amount of health
+            self.hitbox = (self.x + 17, self.y+2, 31, 57)
+
+            #pygame.draw.rect(window, (255, 0, 0), self.hitbox, 2)
+
 
 
 
@@ -134,6 +149,10 @@ class enemy(object):
     #this methods exectue whenever goblin gets hit
     def hit(self):
         print('target hit')
+        if self.health>1: #once health is 0 enemy will die
+            self.health-=1 #substracting health while enemy is hit
+        else:
+            self.visible=False
         pass
 
 
@@ -141,7 +160,7 @@ class enemy(object):
 def redraw_game_window():
 
     window.blit(background,(0,0))
-    text=scoreboard_font.render('Score',str(score_of_player),1,(0,0,0)) #rendering our scoreboard text onto the screen
+    text=scoreboard_font.render('Score:'+str(score_of_player),1,(0,0,0)) #rendering our scoreboard onto the screen
     window.blit(text,(390,10))
     character.draw(window)
     zombie.draw(window)
@@ -155,7 +174,8 @@ cooldown=0 #shooting cooldown
 bullets=[]
 
 #creating our scoreboard
-scoreboard_font=pygame.font.SysFont('TTF',40,True,True)
+scoreboard_font=pygame.font.SysFont('TTF',40,True)
+
 
 
 run=True
@@ -179,6 +199,7 @@ while run is True:
         if bullet.y-bullet.radius<zombie.hitbox[1]+zombie.hitbox[3] and bullet.y+bullet.radius>zombie.hitbox[1]: #first part check if we are above the bottom of hitbox and second if we are below the top
             #then we need to check right side and left side
             if bullet.x + bullet.radius > zombie.hitbox[0] and bullet.x-bullet.radius<zombie.hitbox[0]+zombie.hitbox[2]: #hitbox[0] is x coordinate
+                hit_soundef.play()
                 zombie.hit()
                 score_of_player+=1
                 bullets.pop(bullets.index(bullet)) #remove projectile once it hit
@@ -195,6 +216,7 @@ while run is True:
 
     #projectiles
     if move_keys[pygame.K_SPACE] and cooldown==0:
+        bullet_soundef.play()
         if character.left:
             facing=-1 #moving negative direction in order to make the projectiole move left
         else:
