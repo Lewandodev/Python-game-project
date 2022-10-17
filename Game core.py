@@ -66,6 +66,29 @@ class player(object):
         #every time player is moving the hitbox moves with him and changes
         #pygame.draw.rect(window,(255,0,0),self.hitbox,2)
 
+
+    #collision with enemy
+    def hit(self):
+        #if player collides with enemy he will be reseted ang egt negative points
+        self.x=60
+        self.y=340 #our character position once he is reseted
+        self.walking_count=0
+        lose_font=pygame.font.SysFont('TTF',100)
+        lose_points=lose_font.render('-5',1,(255,0,0))
+        window.blit(lose_points,((screen_border/2)-(lose_points.get_width()/2),((480/2)-(lose_points.get_height()/2)))) #we will display the inforamtion that player losed 10 points in the middle of screen
+        #to get x coordinate first we divide our screen width divided by 2 to get in the middle then we substract it by divided width of our text object analogically we get y coordinates
+        pygame.display.update()
+        #we will need to delay the display of negative points so player might see it on screen (standardly it will only flash on the screen very quickly)
+        i=0
+        while i<100:
+            pygame.time.delay(10) #miliseconds
+            i+=1
+            for event in pygame.event.get(): #avoiding error causing the user to be incapable of closing game immediately after being hit
+                if event.type==pygame.QUIT:
+                    i=101
+                    pygame.quit()
+
+
 #projectile which our character will shoot
 class projectile(object):
     def __init__(self,x,y,radius,color,facing):
@@ -181,6 +204,15 @@ scoreboard_font=pygame.font.SysFont('TTF',40,True)
 run=True
 while run is True:
     clock.tick(54) #changed delay according to our FPS
+
+
+    if character.hitbox[1]<zombie.hitbox[1]+zombie.hitbox[3] and character.hitbox[1]+character.hitbox[3]>zombie.hitbox[1]: #checking if player character is hit
+            #works similarly to checking if bullets hit our zombie enemy
+        if character.hitbox[0] +character.hitbox[2] > zombie.hitbox[0] and character.hitbox[0]<zombie.hitbox[0]+zombie.hitbox[2]:
+
+                character.hit()
+                score_of_player-=5
+
 
     #making a cooldown of the projectiles player is shooting
     if cooldown>0:
