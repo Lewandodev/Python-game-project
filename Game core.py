@@ -70,6 +70,8 @@ class player(object):
     #collision with enemy
     def hit(self):
         #if player collides with enemy he will be reseted ang egt negative points
+        self.is_jump=False
+        self.jump_count=10
         self.x=60
         self.y=340 #our character position once he is reseted
         self.walking_count=0
@@ -184,7 +186,7 @@ def redraw_game_window():
 
     window.blit(background,(0,0))
     text=scoreboard_font.render('Score:'+str(score_of_player),1,(0,0,0)) #rendering our scoreboard onto the screen
-    window.blit(text,(390,10))
+    window.blit(text,(365,10)) #moving score sligthly to avoid -negative score getting of screen
     character.draw(window)
     zombie.draw(window)
     for bullet in bullets:
@@ -200,18 +202,19 @@ bullets=[]
 scoreboard_font=pygame.font.SysFont('TTF',40,True)
 
 
-
+#main
 run=True
 while run is True:
     clock.tick(54) #changed delay according to our FPS
 
+    if zombie.visible==True:
+        #we use if function in order to avoid bug where disappeared enemy is still in game and can collide with player
+        if character.hitbox[1]<zombie.hitbox[1]+zombie.hitbox[3] and character.hitbox[1]+character.hitbox[3]>zombie.hitbox[1]: #checking if player character is hit
+                #works similarly to checking if bullets hit our zombie enemy
+            if character.hitbox[0] +character.hitbox[2] > zombie.hitbox[0] and character.hitbox[0]<zombie.hitbox[0]+zombie.hitbox[2]:
 
-    if character.hitbox[1]<zombie.hitbox[1]+zombie.hitbox[3] and character.hitbox[1]+character.hitbox[3]>zombie.hitbox[1]: #checking if player character is hit
-            #works similarly to checking if bullets hit our zombie enemy
-        if character.hitbox[0] +character.hitbox[2] > zombie.hitbox[0] and character.hitbox[0]<zombie.hitbox[0]+zombie.hitbox[2]:
-
-                character.hit()
-                score_of_player-=5
+                    character.hit()
+                    score_of_player-=5
 
 
     #making a cooldown of the projectiles player is shooting
